@@ -2,6 +2,7 @@ import { auth } from "@/auth";
 import { articleSchema } from "@/schema/article";
 import { uploadFile } from "@/utils/cloudinary";
 import { prisma } from "@/utils/db";
+import { analyzeContentAI } from "@/utils/open-ai";
 import { NextResponse } from "next/server";
 
 export const GET = async () => {
@@ -50,12 +51,14 @@ export const POST = async (request: Request) => {
       uploadedImage = await uploadFile("fake-news-detector", content as File);
     }
 
+    const aiResult = await analyzeContentAI(content as File | string);
+
     const article = await prisma.article.create({
       data: {
         userId: session.user?.id as string,
         contentText: uploadedImage ? "" : (content as string),
         contentFile: uploadedImage || undefined,
-        analysedContent: "",
+        analysedContent: aiResult,
         factCheckingContent: "",
       },
     });
