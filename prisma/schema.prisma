@@ -6,7 +6,6 @@
 
 generator client {
   provider = "prisma-client-js"
-  output   = "../src/generated/prisma"
 }
 
 datasource db {
@@ -60,6 +59,7 @@ model User {
   role          Role?     @default(USER)
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
+  Article       Article[]
 
   @@map("users")
 }
@@ -71,4 +71,16 @@ model VerificationToken {
 
   @@unique([identifier, token])
   @@map("verification_tokens")
+}
+
+model Article {
+  id                  String   @id @default(cuid())
+  contentText         String?
+  contentFile         Json?
+  analysedContent     String
+  factCheckingContent String
+  userId              String
+  user                User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
 }

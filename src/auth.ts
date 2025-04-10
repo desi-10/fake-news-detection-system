@@ -9,6 +9,10 @@ export const {
   signOut,
   auth,
 } = NextAuth({
+  pages: {
+    signIn: "/auth/login",
+    signOut: "/",
+  },
   adapter: PrismaAdapter(prisma),
   providers: [
     Google({
