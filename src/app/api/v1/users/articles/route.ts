@@ -2,6 +2,7 @@ import { auth } from "@/auth";
 import { articleSchema } from "@/schema/article";
 import { uploadFile } from "@/utils/cloudinary";
 import { prisma } from "@/utils/db";
+import { analyzeFactCheckResults, checkFacts } from "@/utils/fact-check";
 import { analyzeContentAI } from "@/utils/open-ai";
 import { NextResponse } from "next/server";
 
@@ -52,6 +53,14 @@ export const POST = async (request: Request) => {
     }
 
     const aiResult = await analyzeContentAI(content as File | string);
+
+    let factCheckResult = null;
+    if (typeof content === "string") {
+      const factCheckResults = await checkFacts(content);
+      factCheckResult = analyzeFactCheckResults(factCheckResults);
+    }
+
+    console.log(factCheckResult);
 
     const article = await prisma.article.create({
       data: {
