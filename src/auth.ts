@@ -5,15 +5,12 @@ import authConfig from "./auth.config";
 
 export const {
   handlers: { GET, POST },
+  auth,
   signIn,
   signOut,
-  auth,
+  unstable_update,
 } = NextAuth({
-  pages: {
-    signIn: "/auth/login",
-    signOut: "/",
-    error: "/auth/login",
-  },
-  adapter: PrismaAdapter(prisma),
   ...authConfig,
+  adapter: PrismaAdapter(prisma),
+  session: { strategy: "jwt" },
 });
