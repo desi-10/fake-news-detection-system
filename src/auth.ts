@@ -1,7 +1,7 @@
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import NextAuth from "next-auth";
-import Google from "next-auth/providers/google";
 import { prisma } from "./utils/db";
+import authConfig from "./auth.config";
 
 export const {
   handlers: { GET, POST },
@@ -12,12 +12,8 @@ export const {
   pages: {
     signIn: "/auth/login",
     signOut: "/",
+    error: "/auth/login",
   },
   adapter: PrismaAdapter(prisma),
-  providers: [
-    Google({
-      clientId: process.env.GOOGLE_CLIENT_ID!,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
-    }),
-  ],
+  ...authConfig,
 });
