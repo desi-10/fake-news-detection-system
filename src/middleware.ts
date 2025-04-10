@@ -4,7 +4,7 @@ import authConfig from "./auth.config";
 
 const { auth: middleware } = NextAuth(authConfig); // This is fine here
 
-export default middleware(async (req) => {
+export default middleware((req) => {
   const { nextUrl } = req;
 
   if (

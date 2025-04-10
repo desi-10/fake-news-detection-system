@@ -6,7 +6,7 @@ import { CgGoogle } from "react-icons/cg";
 export default function LoginPage() {
   const handleGoogleSignIn = async () => {
     try {
-      await signIn("google");
+      await signIn("google", { redirectTo: "/" });
     } catch (error) {
       console.error("Sign in error:", error);
     }
