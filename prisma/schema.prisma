@@ -57,6 +57,7 @@ model User {
   accounts      Account[]
   sessions      Session[]
   role          Role?     @default(USER)
+  isAtive       Boolean   @default(true)
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
   Article       Article[]
