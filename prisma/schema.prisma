@@ -79,7 +79,7 @@ model Article {
   contentText         String?
   contentFile         Json?
   analysedContent     String
-  factCheckingContent String
+  factCheckingContent Json
   userId              String
   user                User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   createdAt           DateTime @default(now())
