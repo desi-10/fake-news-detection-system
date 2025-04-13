@@ -27,6 +27,7 @@ Return your response strictly in the following JSON format:
 
 {
   "isLikelyTrue": boolean,
+  "confidence": number,
   "summary": string,
   "explanation": string,
   "sources": [

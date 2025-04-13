@@ -82,14 +82,6 @@ export const POST = async (request: Request) => {
     }
 
     const factCheckResults = await checkFacts(extractedText);
-
-    if (factCheckResults.length === 0) {
-      return NextResponse.json(
-        { message: "No facts found in the text" },
-        { status: 200 }
-      );
-    }
-
     const aiResult = await analyzeContentAI(extractedText, factCheckResults);
 
     const article = await prisma.article.create({
