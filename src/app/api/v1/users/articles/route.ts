@@ -41,9 +41,9 @@ export const GET = async () => {
 
 export const POST = async (request: Request) => {
   try {
-    // const session = await auth();
+    const session = await auth();
     // For testing, uncomment below
-    const session = { user: { id: "cm9frbyk20000l804x02mhebn" } };
+    // const session = { user: { id: "cm9frbyk20000l804x02mhebn" } };
 
     if (!session) {
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
