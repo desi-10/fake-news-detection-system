@@ -1,23 +1,29 @@
-import { OpenAI } from "openai"; // or your preferred AI SDK
+import { GoogleGenAI } from "@google/genai";
+import { FactCheckResult } from "./fact-check";
+const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY! });
+const ai = new GoogleGenAI({ apiKey: GEMINI_API_KEY });
 
-export async function analyzeContentAI(
-  content: File | string
-): Promise<string> {
-  try {
-    const prompt = `Analyze the following article content and provide a short summary and an assessment if it's likely real or fake:\n\n${content}`;
+const analyzeContentAI = async (content: FactCheckResult[]) => {
+  console.log(content);
+  const response = await ai.models.generateContent({
+    model: "gemini-2.0-flash-001",
+    contents: `Analyze the following article content and provide a short summary and an assessment if it's likely real or fake:\n\n${JSON.stringify(
+      content,
+      null,
+      2
+    )} and return the result in JSON format. The JSON should have the following format: \n\n{
+    facts: boolean,
+    claims: boolean,
+    factsConfidence: number,
+    claimsConfidence: number,
+    summary: string,
+    explanation: string,
+    sources: { publisher: string; url: string; rating: string }[]
+  }`,
+  });
 
-    const response = await openai.chat.completions.create({
-      messages: [{ role: "user", content: prompt }],
-      model: "gpt-4",
-      temperature: 0.5,
-    });
+  return response.text;
+};
 
-    const analysis = response.choices[0].message.content || "";
-    return analysis.trim();
-  } catch (error) {
-    console.error("AI analysis error:", error);
-    return "AI analysis failed.";
-  }
-}
+export default analyzeContentAI;

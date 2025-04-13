@@ -29,6 +29,8 @@ export async function uploadFile(path: string, file: File | null) {
   return {
     url: uploadedFile.secure_url,
     id: uploadedFile.public_id,
+    fileBuffer,
+    mimeType,
   };
 }
 
