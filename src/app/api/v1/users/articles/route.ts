@@ -4,7 +4,7 @@ import { uploadFile } from "@/utils/cloudinary";
 import { prisma } from "@/utils/db";
 import { extractTextFromFile } from "@/utils/extra-from-file";
 import { checkFacts } from "@/utils/fact-check";
-import analyzeContentAI from "@/utils/open-ai";
+import analyzeContentAI from "@/utils/google-ai";
 import { NextResponse } from "next/server";
 
 export const GET = async () => {
@@ -41,9 +41,9 @@ export const GET = async () => {
 
 export const POST = async (request: Request) => {
   try {
-    const session = await auth();
+    // const session = await auth();
     // For testing, uncomment below
-    // const session = { user: { id: "cm9btj2l00000gdikgbur8xt4" } };
+    const session = { user: { id: "cm9frbyk20000l804x02mhebn" } };
 
     if (!session) {
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
@@ -82,7 +82,15 @@ export const POST = async (request: Request) => {
     }
 
     const factCheckResults = await checkFacts(extractedText);
-    const aiResult = await analyzeContentAI(factCheckResults);
+
+    if (factCheckResults.length === 0) {
+      return NextResponse.json(
+        { message: "No facts found in the text" },
+        { status: 200 }
+      );
+    }
+
+    const aiResult = await analyzeContentAI(extractedText, factCheckResults);
 
     const article = await prisma.article.create({
       data: {
