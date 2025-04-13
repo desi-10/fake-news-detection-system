@@ -88,7 +88,7 @@ export const PATCH = async (
   }
 };
 
-export const DELTE = async (
+export const DELETE = async (
   _request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) => {
