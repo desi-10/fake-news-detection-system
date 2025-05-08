@@ -90,9 +90,9 @@ export default function AnalyzePage() {
                   className="mb-6"
                   onValueChange={(value) => setInputType(value as "text" | "url")}
                 >
-                  <TabsList className="grid w-full grid-cols-2">
-                    <TabsTrigger value="text">Paste Text</TabsTrigger>
-                    <TabsTrigger value="url">Enter URL</TabsTrigger>
+                  <TabsList className="grid w-full grid-cols-2 h-12">
+                    <TabsTrigger value="text" className="">Paste Text</TabsTrigger>
+                    <TabsTrigger value="url" className="">Enter URL</TabsTrigger>
                   </TabsList>
                   <TabsContent value="text" className="mt-4">
                     <div className="grid gap-2">
@@ -117,12 +117,13 @@ export default function AnalyzePage() {
                         value={inputValue}
                         onChange={(e) => setInputValue(e.target.value)}
                         required
+                        className="py-6"
                       />
                     </div>
                   </TabsContent>
                 </Tabs>
 
-                <Button type="submit" className="w-full" disabled={isAnalyzing || !inputValue.trim()}>
+                <Button type="submit" className="w-full py-6" disabled={isAnalyzing || !inputValue.trim()}>
                   {isAnalyzing ? "Analyzing..." : "Analyze Content"}
                 </Button>
               </form>

@@ -1,11 +1,25 @@
-import Link from "next/link"
+"use client"
+
 import { ArrowRight } from "lucide-react"
+import { useRouter } from "next/navigation"
+import { useSession } from "next-auth/react"
 
 import { Button } from "@/components/ui/button"
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import Footer from "@/components/Footer"
 
 export default function Home() {
+  const router = useRouter()
+  const { status } = useSession()
+
+  const handleAnalyzeClick = () => {
+    if (status === "authenticated") {
+      router.push("/analyze")
+    } else {
+      router.push("/auth/login")
+    }
+  }
+
   return (
     <div className="flex min-h-screen flex-col">
       <main className="flex-1">
@@ -21,12 +35,13 @@ export default function Home() {
                 </p>
               </div>
               <div className="mx-auto w-full max-w-sm space-y-2">
-                <Link href="/analyze" className="cursor-pointer">
-                  <Button className="w-full bg-white text-primary font-bold text-lg py-6 hover:bg-white/90">
-                    Start Analyzing
-                    <ArrowRight className="ml-2 h-4 w-4" />
-                  </Button>
-                </Link>
+                <Button 
+                  onClick={handleAnalyzeClick}
+                  className="w-full bg-white text-primary font-bold text-lg py-6 hover:bg-white/90"
+                >
+                  Start Analyzing
+                  <ArrowRight className="ml-2 h-4 w-4" />
+                </Button>
               </div>
             </div>
           </div>
