@@ -29,40 +29,53 @@ export default function AnalyzePage() {
   }>(null)
   const [inputType, setInputType] = useState<"text" | "url">("text")
   const [inputValue, setInputValue] = useState("")
+  const [error, setError] = useState<string | null>(null)
 
   const handleAnalyze = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsAnalyzing(true)
+    setError(null)
 
-    // Simulate API call with timeout
-    setTimeout(() => {
-      // Mock data matching the new response structure
-      setResults({
-        isLikelyTrue: Math.random() > 0.5,
-        confidence: Math.random() * 100,
-        summary: "This article contains several claims that contradict verified information from reliable sources.",
-        explanation:
-          "The content uses emotional language and makes claims without proper citation. Several statistics mentioned are taken out of context or misrepresented compared to original research.",
-        sources: [
-          {
-            publisher: "FactCheck.org",
-            url: "https://www.factcheck.org/example-article",
-            rating: "False",
-          },
-          {
-            publisher: "Reuters Fact Check",
-            url: "https://www.reuters.com/fact-check/example",
-            rating: "Misleading",
-          },
-          {
-            publisher: "Associated Press",
-            url: "https://apnews.com/hub/fact-check/example",
-            rating: "Unverified",
-          },
-        ],
+    try {
+      // Create form data to submit to API
+      const formData = new FormData()
+      formData.append("content", inputValue)
+      
+      // Submit to API
+      const response = await fetch("/api/v1/users/articles", {
+        method: "POST",
+        body: formData,
       })
+      
+      const result = await response.json()
+      
+      if (response.ok) {
+        // Parse the AI analysis result from the response
+        const analysisResult = result.data.analysedContent
+        
+        // The API returns a JSON string, so we need to parse it
+        let parsedAnalysis
+        try {
+          parsedAnalysis = JSON.parse(analysisResult)
+        } catch (e) {
+          console.error("Failed to parse analysis result:", e)
+          setError("Failed to parse analysis result")
+          setIsAnalyzing(false)
+          return
+        }
+        
+        // Set the results state with the parsed analysis
+        setResults(parsedAnalysis)
+      } else {
+        console.error("Failed to analyze content:", result)
+        setError(result.message || "Failed to analyze content")
+      }
+    } catch (error) {
+      console.error("Error analyzing content:", error)
+      setError("An error occurred while analyzing the content")
+    } finally {
       setIsAnalyzing(false)
-    }, 2000)
+    }
   }
 
   return (
