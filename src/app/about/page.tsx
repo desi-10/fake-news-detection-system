@@ -1,8 +1,8 @@
-import Link from "next/link"
-import { ArrowLeft, Shield } from "lucide-react"
+import Link from "next/link";
+import { ArrowLeft } from "lucide-react";
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import Footer from "@/components/Footer"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import Footer from "@/components/Footer";
 
 export default function AboutPage() {
   return (
@@ -18,16 +18,19 @@ export default function AboutPage() {
 
           <div className="prose max-w-none">
             <p className="text-lg mb-6">
-              Fake News Detector is a tool designed to help people identify potential misinformation and fake news online. In
-              today's digital landscape, misleading information can spread rapidly, making it increasingly important to
-              have tools that can help verify the credibility of news content.
+              Fake News Detector is a tool designed to help people identify
+              potential misinformation and fake news online. In today`s digital
+              landscape, misleading information can spread rapidly, making it
+              increasingly important to have tools that can help verify the
+              credibility of news content.
             </p>
 
             <h2 className="text-2xl font-bold mt-8 mb-4">Our Technology</h2>
 
             <p className="mb-4">
-              Our system uses a combination of natural language processing (NLP) and machine learning algorithms to
-              analyze news content for various indicators of potential misinformation:
+              Our system uses a combination of natural language processing (NLP)
+              and machine learning algorithms to analyze news content for
+              various indicators of potential misinformation:
             </p>
 
             <div className="grid gap-6 md:grid-cols-2 my-6">
@@ -37,8 +40,9 @@ export default function AboutPage() {
                 </CardHeader>
                 <CardContent>
                   <p>
-                    We analyze the language patterns, emotional tone, and rhetorical devices used in the content that
-                    might indicate manipulation or bias.
+                    We analyze the language patterns, emotional tone, and
+                    rhetorical devices used in the content that might indicate
+                    manipulation or bias.
                   </p>
                 </CardContent>
               </Card>
@@ -49,8 +53,9 @@ export default function AboutPage() {
                 </CardHeader>
                 <CardContent>
                   <p>
-                    We evaluate the reputation and reliability of the source, author, and publisher based on historical
-                    accuracy and journalistic standards.
+                    We evaluate the reputation and reliability of the source,
+                    author, and publisher based on historical accuracy and
+                    journalistic standards.
                   </p>
                 </CardContent>
               </Card>
@@ -61,8 +66,9 @@ export default function AboutPage() {
                 </CardHeader>
                 <CardContent>
                   <p>
-                    We cross-reference claims with established facts from trusted databases and sources to identify
-                    inconsistencies or falsehoods.
+                    We cross-reference claims with established facts from
+                    trusted databases and sources to identify inconsistencies or
+                    falsehoods.
                   </p>
                 </CardContent>
               </Card>
@@ -73,8 +79,9 @@ export default function AboutPage() {
                 </CardHeader>
                 <CardContent>
                   <p>
-                    We examine how information is presented in context, looking for cherry-picking of data, missing
-                    context, or misleading framing.
+                    We examine how information is presented in context, looking
+                    for cherry-picking of data, missing context, or misleading
+                    framing.
                   </p>
                 </CardContent>
               </Card>
@@ -83,34 +90,51 @@ export default function AboutPage() {
             <h2 className="text-2xl font-bold mt-8 mb-4">Limitations</h2>
 
             <p className="mb-4">
-              While our tool provides valuable insights, it's important to understand its limitations:
+              {
+                "While our tool provides valuable insights, it's important to understand its limitations:"
+              }
             </p>
 
             <ul className="list-disc pl-6 mb-6 space-y-2">
-              <li>No automated system can replace critical thinking and human judgment</li>
-              <li>Our analysis provides probabilities, not definitive verdicts on truth</li>
-              <li>The tool works best with English-language content from mainstream sources</li>
+              <li>
+                No automated system can replace critical thinking and human
+                judgment
+              </li>
+              <li>
+                Our analysis provides probabilities, not definitive verdicts on
+                truth
+              </li>
+              <li>
+                The tool works best with English-language content from
+                mainstream sources
+              </li>
               <li>Some nuanced forms of misinformation may not be detected</li>
             </ul>
 
             <h2 className="text-2xl font-bold mt-8 mb-4">Our Mission</h2>
 
             <p className="mb-6">
-              We believe that access to reliable information is essential for a healthy democracy and society. Our
-              mission is to empower individuals with tools to make more informed decisions about the content they
-              consume and share online.
+              We believe that access to reliable information is essential for a
+              healthy democracy and society. Our mission is to empower
+              individuals with tools to make more informed decisions about the
+              content they consume and share online.
             </p>
 
             <p className="mb-6">
-              By providing an accessible way to evaluate news content, we hope to contribute to a more
-              information-literate public and reduce the spread of harmful misinformation.
+              By providing an accessible way to evaluate news content, we hope
+              to contribute to a more information-literate public and reduce the
+              spread of harmful misinformation.
             </p>
 
             <h2 className="text-2xl font-bold mt-8 mb-4">Contact Us</h2>
 
             <p>
-              If you have questions, feedback, or suggestions about Fake News Detector, please contact us at
-              <a href="mailto:info@Fake News Detector.com" className="text-blue-600 hover:underline ml-1">
+              If you have questions, feedback, or suggestions about Fake News
+              Detector, please contact us at
+              <a
+                href="mailto:info@Fake News Detector.com"
+                className="text-blue-600 hover:underline ml-1"
+              >
                 info@Fake News Detector.com
               </a>
             </p>
@@ -119,5 +143,5 @@ export default function AboutPage() {
       </main>
       <Footer />
     </div>
-  )
+  );
 }
