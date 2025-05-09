@@ -1,26 +1,33 @@
-"use client"
+"use client";
 
-import type React from "react"
+import type React from "react";
 
-import { useState } from "react"
-import Link from "next/link"
-import { ArrowLeft, Shield } from "lucide-react"
+import { useState } from "react";
+import Link from "next/link";
+import { ArrowLeft } from "lucide-react";
 
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Textarea } from "@/components/ui/textarea"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import Footer from "@/components/Footer"
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Textarea } from "@/components/ui/textarea";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import Footer from "@/components/Footer";
 
 export default function AnalyzePage() {
-  const [isAnalyzing, setIsAnalyzing] = useState(false)
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [results, setResults] = useState<null | {
-    isLikelyTrue: boolean
-    confidence: number
-    summary: string
-    explanation: string
+    isLikelyTrue: boolean;
+    confidence: number;
+    summary: string;
+    explanation: string;
     sources: Array<{
       publisher: string
       url: string
@@ -78,6 +85,7 @@ export default function AnalyzePage() {
     }
   }
 
+  
   return (
     <div className="flex min-h-screen flex-col">
       <main className="flex-1 max-w-5xl mx-auto py-12">
@@ -93,7 +101,8 @@ export default function AnalyzePage() {
             <CardHeader>
               <CardTitle>Submit Content for Analysis</CardTitle>
               <CardDescription>
-                Paste an article, news snippet, or URL to analyze for potential misinformation
+                Paste an article, news snippet, or URL to analyze for potential
+                misinformation
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -101,11 +110,17 @@ export default function AnalyzePage() {
                 <Tabs
                   defaultValue="text"
                   className="mb-6"
-                  onValueChange={(value) => setInputType(value as "text" | "url")}
+                  onValueChange={(value) =>
+                    setInputType(value as "text" | "url")
+                  }
                 >
                   <TabsList className="grid w-full grid-cols-2 h-12">
-                    <TabsTrigger value="text" className="">Paste Text</TabsTrigger>
-                    <TabsTrigger value="url" className="">Enter URL</TabsTrigger>
+                    <TabsTrigger value="text" className="">
+                      Paste Text
+                    </TabsTrigger>
+                    <TabsTrigger value="url" className="">
+                      Enter URL
+                    </TabsTrigger>
                   </TabsList>
                   <TabsContent value="text" className="mt-4">
                     <div className="grid gap-2">
@@ -136,7 +151,11 @@ export default function AnalyzePage() {
                   </TabsContent>
                 </Tabs>
 
-                <Button type="submit" className="w-full py-6" disabled={isAnalyzing || !inputValue.trim()}>
+                <Button
+                  type="submit"
+                  className="w-full py-6"
+                  disabled={isAnalyzing || !inputValue.trim()}
+                >
                   {isAnalyzing ? "Analyzing..." : "Analyze Content"}
                 </Button>
               </form>
@@ -147,19 +166,31 @@ export default function AnalyzePage() {
             <Card>
               <CardHeader>
                 <CardTitle>Analysis Results</CardTitle>
-                <CardDescription>Our AI has analyzed the content for signs of misinformation</CardDescription>
+                <CardDescription>
+                  Our AI has analyzed the content for signs of misinformation
+                </CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="flex justify-between items-center mb-6">
                   <div>
-                    <h3 className="text-lg font-medium">Reliability Assessment</h3>
-                    <p className="text-muted-foreground">Based on fact-checking and source analysis</p>
+                    <h3 className="text-lg font-medium">
+                      Reliability Assessment
+                    </h3>
+                    <p className="text-muted-foreground">
+                      Based on fact-checking and source analysis
+                    </p>
                   </div>
                   <div className="text-right">
-                    <p className={`text-3xl font-bold ${results.isLikelyTrue ? "text-green-500" : "text-red-500"}`}>
+                    <p
+                      className={`text-3xl font-bold ${
+                        results.isLikelyTrue ? "text-green-500" : "text-red-500"
+                      }`}
+                    >
                       {results.isLikelyTrue ? "Likely True" : "Likely False"}
                     </p>
-                    <p className="text-sm">{Math.round(results.confidence)}% confidence</p>
+                    <p className="text-sm">
+                      {Math.round(results.confidence)}% confidence
+                    </p>
                   </div>
                 </div>
 
@@ -177,7 +208,10 @@ export default function AnalyzePage() {
                   <h3 className="text-lg font-medium">Source Verification</h3>
                   <div className="space-y-3">
                     {results.sources.map((source, index) => (
-                      <div key={index} className="flex items-start justify-between p-3 border rounded-lg">
+                      <div
+                        key={index}
+                        className="flex items-start justify-between p-3 border rounded-lg"
+                      >
                         <div>
                           <p className="font-medium">{source.publisher}</p>
                           <a
@@ -194,10 +228,10 @@ export default function AnalyzePage() {
                             source.rating === "True"
                               ? "bg-green-100 text-green-800"
                               : source.rating === "False"
-                                ? "bg-red-100 text-red-800"
-                                : source.rating === "Misleading"
-                                  ? "bg-yellow-100 text-yellow-800"
-                                  : "bg-gray-100 text-gray-800"
+                              ? "bg-red-100 text-red-800"
+                              : source.rating === "Misleading"
+                              ? "bg-yellow-100 text-yellow-800"
+                              : "bg-gray-100 text-gray-800"
                           }`}
                         >
                           {source.rating}
@@ -226,9 +260,12 @@ export default function AnalyzePage() {
                       1
                     </div>
                     <div>
-                      <h4 className="font-medium">Verify with multiple sources</h4>
+                      <h4 className="font-medium">
+                        Verify with multiple sources
+                      </h4>
                       <p className="text-muted-foreground">
-                        Check if other reputable news outlets are reporting the same information
+                        Check if other reputable news outlets are reporting the
+                        same information
                       </p>
                     </div>
                   </div>
@@ -239,7 +276,8 @@ export default function AnalyzePage() {
                     <div>
                       <h4 className="font-medium">Check the date</h4>
                       <p className="text-muted-foreground">
-                        Ensure the content is current and not outdated information being presented as new
+                        Ensure the content is current and not outdated
+                        information being presented as new
                       </p>
                     </div>
                   </div>
@@ -248,9 +286,12 @@ export default function AnalyzePage() {
                       3
                     </div>
                     <div>
-                      <h4 className="font-medium">Research the author and source</h4>
+                      <h4 className="font-medium">
+                        Research the author and source
+                      </h4>
                       <p className="text-muted-foreground">
-                        Look into the credibility of who wrote the article and where it was published
+                        Look into the credibility of who wrote the article and
+                        where it was published
                       </p>
                     </div>
                   </div>
@@ -262,5 +303,5 @@ export default function AnalyzePage() {
       </main>
       <Footer />
     </div>
-  )
+  );
 }
