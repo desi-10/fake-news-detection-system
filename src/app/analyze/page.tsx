@@ -63,7 +63,17 @@ export default function AnalyzePage() {
         // The API returns a JSON string, so we need to parse it
         let parsedAnalysis;
         try {
-          parsedAnalysis = JSON.parse(analysisResult);
+          // Check if the result is already a string or if it contains the JSON string with backticks
+          const jsonContent = analysisResult.includes('```json') 
+            ? analysisResult.replace(/```json\n|\n```/g, '') 
+            : analysisResult;
+            
+          parsedAnalysis = JSON.parse(jsonContent);
+          
+          // Ensure sources is always an array, even if empty
+          if (!parsedAnalysis.sources) {
+            parsedAnalysis.sources = [];
+          }
         } catch (e) {
           console.error("Failed to parse analysis result:", e);
           setError("Failed to parse analysis result");
@@ -206,37 +216,43 @@ export default function AnalyzePage() {
                 <div className="space-y-4">
                   <h3 className="text-lg font-medium">Source Verification</h3>
                   <div className="space-y-3">
-                    {results.sources.map((source, index) => (
-                      <div
-                        key={index}
-                        className="flex items-start justify-between p-3 border rounded-lg"
-                      >
-                        <div>
-                          <p className="font-medium">{source.publisher}</p>
-                          <a
-                            href={source.url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-sm text-blue-600 hover:underline"
-                          >
-                            View source
-                          </a>
-                        </div>
+                    {results.sources && results.sources.length > 0 ? (
+                      results.sources.map((source, index) => (
                         <div
-                          className={`px-2 py-1 rounded text-sm font-medium ${
-                            source.rating === "True"
-                              ? "bg-green-100 text-green-800"
-                              : source.rating === "False"
-                              ? "bg-red-100 text-red-800"
-                              : source.rating === "Misleading"
-                              ? "bg-yellow-100 text-yellow-800"
-                              : "bg-gray-100 text-gray-800"
-                          }`}
+                          key={index}
+                          className="flex items-start justify-between p-3 border rounded-lg"
                         >
-                          {source.rating}
+                          <div>
+                            <p className="font-medium">{source.publisher}</p>
+                            <a
+                              href={source.url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-sm text-blue-600 hover:underline"
+                            >
+                              View source
+                            </a>
+                          </div>
+                          <div
+                            className={`px-2 py-1 rounded text-sm font-medium ${
+                              source.rating === "True"
+                                ? "bg-green-100 text-green-800"
+                                : source.rating === "False"
+                                ? "bg-red-100 text-red-800"
+                                : source.rating === "Misleading"
+                                ? "bg-yellow-100 text-yellow-800"
+                                : "bg-gray-100 text-gray-800"
+                            }`}
+                          >
+                            {source.rating}
+                          </div>
                         </div>
+                      ))
+                    ) : (
+                      <div className="p-3 border rounded-lg text-center text-gray-500">
+                        No external sources were found for verification.
                       </div>
-                    ))}
+                    )}
                   </div>
                 </div>
               </CardContent>
