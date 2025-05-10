@@ -84,6 +84,11 @@ export const POST = async (request: Request) => {
     const factCheckResults = await checkFacts(extractedText);
     const aiResult = await analyzeContentAI(extractedText, factCheckResults);
 
+    console.log(uploadedImage, "Image");
+    console.log(session.user.id, "session.user.id");
+    console.log(aiResult, "aiResult");
+    console.log("Creating article...");
+
     const article = await prisma.article.create({
       data: {
         userId: session.user.id as string,
