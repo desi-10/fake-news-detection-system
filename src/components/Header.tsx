@@ -1,6 +1,7 @@
 import { Shield } from "lucide-react";
 import Link from "next/link";
 import React from "react";
+import UserProfile from "./UserProfile";
 
 const Header = () => {
   return (
@@ -10,7 +11,7 @@ const Header = () => {
           <Shield className="h-6 w-6 text-primary" />
           <span className="font-bold text-primary">Fake News Detector</span>
         </Link>
-        <nav className="ml-auto flex gap-4">
+        <nav className="ml-auto flex gap-4 items-center">
           <Link href="/" className="text-sm font-medium">
             Home
           </Link>
@@ -20,6 +21,7 @@ const Header = () => {
           >
             About
           </Link>
+          <UserProfile />
         </nav>
       </div>
     </header>
