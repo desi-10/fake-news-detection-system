@@ -29,63 +29,62 @@ export default function AnalyzePage() {
     summary: string;
     explanation: string;
     sources: Array<{
-      publisher: string
-      url: string
-      rating: "True" | "False" | "Misleading" | "Unverified"
-    }>
-  }>(null)
-  const [inputType, setInputType] = useState<"text" | "url">("text")
-  const [inputValue, setInputValue] = useState("")
-  const [error, setError] = useState<string | null>(null)
+      publisher: string;
+      url: string;
+      rating: "True" | "False" | "Misleading" | "Unverified";
+    }>;
+  }>(null);
+  const [, setInputType] = useState<"text" | "url">("text");
+  const [inputValue, setInputValue] = useState("");
+  const [, setError] = useState<string | null>(null);
 
   const handleAnalyze = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setIsAnalyzing(true)
-    setError(null)
+    e.preventDefault();
+    setIsAnalyzing(true);
+    setError(null);
 
     try {
       // Create form data to submit to API
-      const formData = new FormData()
-      formData.append("content", inputValue)
-      
+      const formData = new FormData();
+      formData.append("content", inputValue);
+
       // Submit to API
       const response = await fetch("/api/v1/users/articles", {
         method: "POST",
         body: formData,
-      })
-      
-      const result = await response.json()
-      
+      });
+
+      const result = await response.json();
+
       if (response.ok) {
         // Parse the AI analysis result from the response
-        const analysisResult = result.data.analysedContent
-        
+        const analysisResult = result.data.analysedContent;
+
         // The API returns a JSON string, so we need to parse it
-        let parsedAnalysis
+        let parsedAnalysis;
         try {
-          parsedAnalysis = JSON.parse(analysisResult)
+          parsedAnalysis = JSON.parse(analysisResult);
         } catch (e) {
-          console.error("Failed to parse analysis result:", e)
-          setError("Failed to parse analysis result")
-          setIsAnalyzing(false)
-          return
+          console.error("Failed to parse analysis result:", e);
+          setError("Failed to parse analysis result");
+          setIsAnalyzing(false);
+          return;
         }
-        
+
         // Set the results state with the parsed analysis
-        setResults(parsedAnalysis)
+        setResults(parsedAnalysis);
       } else {
-        console.error("Failed to analyze content:", result)
-        setError(result.message || "Failed to analyze content")
+        console.error("Failed to analyze content:", result);
+        setError(result.message || "Failed to analyze content");
       }
     } catch (error) {
-      console.error("Error analyzing content:", error)
-      setError("An error occurred while analyzing the content")
+      console.error("Error analyzing content:", error);
+      setError("An error occurred while analyzing the content");
     } finally {
-      setIsAnalyzing(false)
+      setIsAnalyzing(false);
     }
-  }
+  };
 
-  
   return (
     <div className="flex min-h-screen flex-col">
       <main className="flex-1 max-w-5xl mx-auto py-12">
