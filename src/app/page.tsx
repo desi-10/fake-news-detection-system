@@ -13,13 +13,11 @@ export default function Home() {
   const { status } = useSession()
 
   const handleAnalyzeClick = () => {
-    // if (status === "authenticated") {
-    //   router.push("/analyze")
-    // } else {
-    //   router.push("/auth/login")
-    // }
-    
-    router.push("/analyze")
+    if (status === "authenticated") {
+      router.push("/analyze")
+    } else {
+      router.push("/auth/login")
+    }
   }
 
   return (
