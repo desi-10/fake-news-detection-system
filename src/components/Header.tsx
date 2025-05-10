@@ -1,7 +1,13 @@
-import { Shield } from "lucide-react";
-import Link from "next/link";
 import React from "react";
+import Link from "next/link";
+import { Shield } from "lucide-react";
 import UserProfile from "./UserProfile";
+
+const NAV_ITEMS = [
+  { label: "Home", href: "/", muted: false },
+  { label: "About", href: "/about", muted: true },
+  { label: "Feedback", href: "/feedback", muted: true },
+];
 
 const Header = () => {
   return (
@@ -12,15 +18,17 @@ const Header = () => {
           <span className="font-bold text-primary">Fake News Detector</span>
         </Link>
         <nav className="ml-auto flex gap-4 items-center">
-          <Link href="/" className="text-sm font-medium">
-            Home
-          </Link>
-          <Link
-            href="/about"
-            className="text-sm font-medium text-muted-foreground"
-          >
-            About
-          </Link>
+          {NAV_ITEMS.map(({ label, href, muted }) => (
+            <Link
+              key={label}
+              href={href}
+              className={`text-sm font-medium ${
+                muted ? "text-muted-foreground" : ""
+              }`}
+            >
+              {label}
+            </Link>
+          ))}
           <UserProfile />
         </nav>
       </div>
