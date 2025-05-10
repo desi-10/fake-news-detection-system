@@ -198,7 +198,7 @@ export default function AnalyzePage() {
                       {results.isLikelyTrue ? "Likely True" : "Likely False"}
                     </p>
                     <p className="text-sm">
-                      {Math.round(results.confidence)}% confidence
+                      {Math.round(results.confidence * 100)}% confidence
                     </p>
                   </div>
                 </div>
