@@ -26,7 +26,7 @@ export const GET = async () => {
 };
 
 const feedbackSchema = z.object({
-  contentText: z.string().min(1),
+  content: z.string().min(1),
   rating: z.number().min(1).max(5),
 });
 
@@ -50,11 +50,11 @@ export const POST = async (request: Request) => {
         { status: 400 }
       );
     }
-    const { contentText, rating } = parsedBody.data;
+    const { content, rating } = parsedBody.data;
 
     const newFeedback = await prisma.feedback.create({
       data: {
-        contentText,
+        content,
         rating,
         userId: session.user.id!,
       },
