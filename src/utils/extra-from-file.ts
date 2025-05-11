@@ -1,6 +1,7 @@
-// import pdfParse from "pdf-parse";
 import mammoth from "mammoth";
-import { createWorker } from "tesseract.js";
+import axios from "axios";
+import FormData from "form-data";
+
 export async function extractTextFromFile(file: Blob): Promise<string> {
   try {
     const arrayBuffer = await file.arrayBuffer();
@@ -8,24 +9,38 @@ export async function extractTextFromFile(file: Blob): Promise<string> {
     const fileType = file.type;
 
     switch (fileType) {
-      case "application/pdf":
-      // const pdfData = await pdfParse(buffer);
-      // return pdfData.text;
-
       case "application/vnd.openxmlformats-officedocument.wordprocessingml.document":
-      case "application/msword":
+      case "application/msword": {
         const { value } = await mammoth.extractRawText({ buffer });
         return value;
+      }
 
       case "image/png":
       case "image/jpeg":
-      case "image/jpg":
-        const worker = await createWorker();
-        const {
-          data: { text },
-        } = await worker.recognize(buffer);
-        await worker.terminate();
+      case "image/jpg": {
+        const form = new FormData();
+        form.append("language", "eng");
+        form.append("isOverlayRequired", "false");
+        form.append("file", buffer, {
+          filename: "upload.jpg", // required by ocr.space
+          contentType: fileType,
+        });
+
+        const response = await axios.post(
+          "https://api.ocr.space/parse/image",
+          form,
+          {
+            headers: {
+              apikey: process.env.OCR_SPACE_API_KEY!, // 🔐 Set in your .env
+              ...form.getHeaders(),
+            },
+          }
+        );
+
+        const text = response.data?.ParsedResults?.[0]?.ParsedText;
+        if (!text) throw new Error("OCR API failed to extract text.");
         return text;
+      }
 
       default:
         throw new Error(`Unsupported file type: ${fileType}`);
