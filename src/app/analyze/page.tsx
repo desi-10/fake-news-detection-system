@@ -1,17 +1,14 @@
 "use client";
 
-import type React from "react";
-
-import { useState } from "react";
+import { useState, useRef } from "react";
 import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Upload } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
@@ -20,23 +17,56 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Footer from "@/components/Footer";
+import Loader from "@/components/analyze/Loader";
+import ErrorAlert from "@/components/analyze/ErrorAlert";
+import Result from "@/components/analyze/Result";
+import { CgClose } from "react-icons/cg";
+import { useSession } from "next-auth/react";
+import { redirect } from "next/navigation";
+
+export type ResultProps = {
+  isLikelyTrue: boolean;
+  confidence: number;
+  summary: string;
+  explanation: string;
+  sources: Array<{
+    publisher: string;
+    url: string;
+    rating: "True" | "False" | "Misleading" | "Unverified";
+  }>;
+};
 
 export default function AnalyzePage() {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
-  const [results, setResults] = useState<null | {
-    isLikelyTrue: boolean;
-    confidence: number;
-    summary: string;
-    explanation: string;
-    sources: Array<{
-      publisher: string;
-      url: string;
-      rating: "True" | "False" | "Misleading" | "Unverified";
-    }>;
-  }>(null);
-  const [, setInputType] = useState<"text" | "url">("text");
+  const [results, setResults] = useState<null | ResultProps>(null);
+  const [inputType, setInputType] = useState<"text" | "file">("text");
   const [inputValue, setInputValue] = useState("");
-  const [, setError] = useState<string | null>(null);
+  const [selectedImage, setSelectedImage] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const { status } = useSession();
+
+  if (status !== "authenticated") redirect("/auth/login");
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Check if file is an image
+    if (!file.type.startsWith("image/")) {
+      setError("Please select an image file (JPEG, PNG, etc.)");
+      return;
+    }
+
+    setSelectedImage(file);
+    setInputValue(file.name); // Set the file name for display purposes
+
+    // Create a preview URL
+    const fileUrl = URL.createObjectURL(file);
+    setPreviewUrl(fileUrl);
+  };
 
   const handleAnalyze = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -46,7 +76,16 @@ export default function AnalyzePage() {
     try {
       // Create form data to submit to API
       const formData = new FormData();
-      formData.append("content", inputValue);
+
+      if (inputType === "text") {
+        formData.append("content", inputValue);
+      } else if (inputType === "file" && selectedImage) {
+        formData.append("content", selectedImage);
+      } else {
+        setError("Please provide content or select an image to analyze");
+        setIsAnalyzing(false);
+        return;
+      }
 
       // Submit to API
       const response = await fetch("/api/v1/users/articles", {
@@ -64,12 +103,12 @@ export default function AnalyzePage() {
         let parsedAnalysis;
         try {
           // Check if the result is already a string or if it contains the JSON string with backticks
-          const jsonContent = analysisResult.includes('```json') 
-            ? analysisResult.replace(/```json\n|\n```/g, '') 
+          const jsonContent = analysisResult.includes("```json")
+            ? analysisResult.replace(/```json\n|\n```/g, "")
             : analysisResult;
-            
+
           parsedAnalysis = JSON.parse(jsonContent);
-          
+
           // Ensure sources is always an array, even if empty
           if (!parsedAnalysis.sources) {
             parsedAnalysis.sources = [];
@@ -92,11 +131,27 @@ export default function AnalyzePage() {
       setError("An error occurred while analyzing the content");
     } finally {
       setIsAnalyzing(false);
+      // Clean up preview URL when done
+      if (previewUrl) {
+        URL.revokeObjectURL(previewUrl);
+      }
+    }
+  };
+
+  const handleReset = () => {
+    if (previewUrl) {
+      URL.revokeObjectURL(previewUrl);
+    }
+    setSelectedImage(null);
+    setPreviewUrl(null);
+    setInputValue("");
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
     }
   };
 
   return (
-    <div className="flex min-h-screen flex-col">
+    <div className="flex min-h-screen flex-col relative">
       <main className="flex-1 max-w-5xl mx-auto py-12">
         <Link href="/" className="inline-flex items-center mb-6 text-sm">
           <ArrowLeft className="mr-2 h-4 w-4" />
@@ -105,13 +160,15 @@ export default function AnalyzePage() {
 
         <h1 className="text-3xl font-bold mb-6">Analyze Content</h1>
 
+        <ErrorAlert error={error} setError={setError} />
+
         {!results ? (
           <Card className="max-w-2xl mx-auto">
             <CardHeader>
               <CardTitle>Submit Content for Analysis</CardTitle>
               <CardDescription>
-                Paste an article, news snippet, or URL to analyze for potential
-                misinformation
+                Paste an article, news snippet, or upload an image to analyze
+                for potential misinformation
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -119,16 +176,17 @@ export default function AnalyzePage() {
                 <Tabs
                   defaultValue="text"
                   className="mb-6"
-                  onValueChange={(value) =>
-                    setInputType(value as "text" | "url")
-                  }
+                  onValueChange={(value) => {
+                    setInputType(value as "text" | "file");
+                    handleReset();
+                  }}
                 >
                   <TabsList className="grid w-full grid-cols-2 h-12">
                     <TabsTrigger value="text" className="">
                       Paste Text
                     </TabsTrigger>
-                    <TabsTrigger value="url" className="">
-                      Enter URL
+                    <TabsTrigger value="file" className="">
+                      Upload Image
                     </TabsTrigger>
                   </TabsList>
                   <TabsContent value="text" className="mt-4">
@@ -140,22 +198,57 @@ export default function AnalyzePage() {
                         className="min-h-[200px]"
                         value={inputValue}
                         onChange={(e) => setInputValue(e.target.value)}
-                        required
+                        required={inputType === "text"}
                       />
                     </div>
                   </TabsContent>
-                  <TabsContent value="url" className="mt-4">
-                    <div className="grid gap-2">
-                      <Label htmlFor="url">News URL</Label>
+                  <TabsContent value="file" className="mt-4">
+                    <div className="grid gap-4">
+                      <Label htmlFor="file">Image Upload</Label>
                       <Input
-                        id="url"
-                        type="url"
-                        placeholder="https://example.com/news-article"
-                        value={inputValue}
-                        onChange={(e) => setInputValue(e.target.value)}
-                        required
-                        className="py-6"
+                        id="file"
+                        type="file"
+                        accept="image/*"
+                        ref={fileInputRef}
+                        onChange={handleImageChange}
+                        required={inputType === "file"}
+                        className="py-2"
+                        hidden
                       />
+
+                      {previewUrl && (
+                        <div className="mt-4 relative">
+                          <img
+                            src={previewUrl}
+                            alt="Preview"
+                            className="max-h-[300px] rounded-md border border-gray-200"
+                          />
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            className="absolute top-2 right-2 h-8 w-8 p-0"
+                            onClick={handleReset}
+                          >
+                            <CgClose className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      )}
+
+                      {!previewUrl && (
+                        <div
+                          className="w-full px-8 py-14 border-2 border-dashed border-gray-300 rounded-md text-center cursor-pointer hover:bg-gray-50 transition-colors"
+                          onClick={() => fileInputRef.current?.click()}
+                        >
+                          <Upload className="mx-auto h-12 w-12 text-gray-400" />
+                          <p className="mt-2 text-sm text-gray-600">
+                            Click to upload or drag and drop
+                          </p>
+                          <p className="text-xs text-gray-500">
+                            PNG, JPG, GIF up to 10MB
+                          </p>
+                        </div>
+                      )}
                     </div>
                   </TabsContent>
                 </Tabs>
@@ -163,7 +256,10 @@ export default function AnalyzePage() {
                 <Button
                   type="submit"
                   className="w-full py-6"
-                  disabled={isAnalyzing || !inputValue.trim()}
+                  disabled={
+                    isAnalyzing ||
+                    (inputType === "text" ? !inputValue.trim() : !selectedImage)
+                  }
                 >
                   {isAnalyzing ? "Analyzing..." : "Analyze Content"}
                 </Button>
@@ -171,152 +267,11 @@ export default function AnalyzePage() {
             </CardContent>
           </Card>
         ) : (
-          <div className="max-w-2xl mx-auto space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Analysis Results</CardTitle>
-                <CardDescription>
-                  Our AI has analyzed the content for signs of misinformation
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="flex justify-between items-center mb-6">
-                  <div>
-                    <h3 className="text-lg font-medium">
-                      Reliability Assessment
-                    </h3>
-                    <p className="text-muted-foreground">
-                      Based on fact-checking and source analysis
-                    </p>
-                  </div>
-                  <div className="text-right">
-                    <p
-                      className={`text-3xl font-bold ${
-                        results.isLikelyTrue ? "text-green-500" : "text-red-500"
-                      }`}
-                    >
-                      {results.isLikelyTrue ? "Likely True" : "Likely False"}
-                    </p>
-                    <p className="text-sm">
-                      {Math.round(results.confidence * 100)}% confidence
-                    </p>
-                  </div>
-                </div>
-
-                <div className="space-y-4 mb-6">
-                  <h3 className="text-lg font-medium">Summary</h3>
-                  <p>{results.summary}</p>
-                </div>
-
-                <div className="space-y-4 mb-6">
-                  <h3 className="text-lg font-medium">Detailed Explanation</h3>
-                  <p>{results.explanation}</p>
-                </div>
-
-                <div className="space-y-4">
-                  <h3 className="text-lg font-medium">Source Verification</h3>
-                  <div className="space-y-3">
-                    {results.sources && results.sources.length > 0 ? (
-                      results.sources.map((source, index) => (
-                        <div
-                          key={index}
-                          className="flex items-start justify-between p-3 border rounded-lg"
-                        >
-                          <div>
-                            <p className="font-medium">{source.publisher}</p>
-                            <a
-                              href={source.url}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="text-sm text-blue-600 hover:underline"
-                            >
-                              View source
-                            </a>
-                          </div>
-                          <div
-                            className={`px-2 py-1 rounded text-sm font-medium ${
-                              source.rating === "True"
-                                ? "bg-green-100 text-green-800"
-                                : source.rating === "False"
-                                ? "bg-red-100 text-red-800"
-                                : source.rating === "Misleading"
-                                ? "bg-yellow-100 text-yellow-800"
-                                : "bg-gray-100 text-gray-800"
-                            }`}
-                          >
-                            {source.rating}
-                          </div>
-                        </div>
-                      ))
-                    ) : (
-                      <div className="p-3 border rounded-lg text-center text-gray-500">
-                        No external sources were found for verification.
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </CardContent>
-              <CardFooter className="flex justify-between">
-                <Button variant="outline" onClick={() => setResults(null)}>
-                  Analyze Another
-                </Button>
-                <Button>Download Report</Button>
-              </CardFooter>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle>What to do next</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  <div className="flex gap-2">
-                    <div className="bg-blue-100 p-2 rounded-full h-8 w-8 flex items-center justify-center text-blue-700">
-                      1
-                    </div>
-                    <div>
-                      <h4 className="font-medium">
-                        Verify with multiple sources
-                      </h4>
-                      <p className="text-muted-foreground">
-                        Check if other reputable news outlets are reporting the
-                        same information
-                      </p>
-                    </div>
-                  </div>
-                  <div className="flex gap-2">
-                    <div className="bg-blue-100 p-2 rounded-full h-8 w-8 flex items-center justify-center text-blue-700">
-                      2
-                    </div>
-                    <div>
-                      <h4 className="font-medium">Check the date</h4>
-                      <p className="text-muted-foreground">
-                        Ensure the content is current and not outdated
-                        information being presented as new
-                      </p>
-                    </div>
-                  </div>
-                  <div className="flex gap-2">
-                    <div className="bg-blue-100 p-2 rounded-full h-8 w-8 flex items-center justify-center text-blue-700">
-                      3
-                    </div>
-                    <div>
-                      <h4 className="font-medium">
-                        Research the author and source
-                      </h4>
-                      <p className="text-muted-foreground">
-                        Look into the credibility of who wrote the article and
-                        where it was published
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
+          <Result results={results} setResults={setResults} />
         )}
       </main>
       <Footer />
+      {isAnalyzing && <Loader />}
     </div>
   );
 }

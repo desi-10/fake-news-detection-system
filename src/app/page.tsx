@@ -10,14 +10,9 @@ import Footer from "@/components/Footer"
 
 export default function Home() {
   const router = useRouter()
-  const { status } = useSession()
 
   const handleAnalyzeClick = () => {
-    if (status === "authenticated") {
       router.push("/analyze")
-    } else {
-      router.push("/auth/login")
-    }
   }
 
   return (
