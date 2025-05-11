@@ -21,6 +21,8 @@ import Loader from "@/components/analyze/Loader";
 import ErrorAlert from "@/components/analyze/ErrorAlert";
 import Result from "@/components/analyze/Result";
 import { CgClose } from "react-icons/cg";
+import { useSession } from "next-auth/react";
+import { redirect } from "next/navigation";
 
 export type ResultProps = {
   isLikelyTrue: boolean;
@@ -44,13 +46,17 @@ export default function AnalyzePage() {
   const [error, setError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  const { status } = useSession();
+
+  if (status !== "authenticated") redirect("/auth/login");
+
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
     // Check if file is an image
-    if (!file.type.startsWith('image/')) {
-      setError('Please select an image file (JPEG, PNG, etc.)');
+    if (!file.type.startsWith("image/")) {
+      setError("Please select an image file (JPEG, PNG, etc.)");
       return;
     }
 
@@ -70,7 +76,7 @@ export default function AnalyzePage() {
     try {
       // Create form data to submit to API
       const formData = new FormData();
-      
+
       if (inputType === "text") {
         formData.append("content", inputValue);
       } else if (inputType === "file" && selectedImage) {
@@ -161,8 +167,8 @@ export default function AnalyzePage() {
             <CardHeader>
               <CardTitle>Submit Content for Analysis</CardTitle>
               <CardDescription>
-                Paste an article, news snippet, or upload an image to analyze for potential
-                misinformation
+                Paste an article, news snippet, or upload an image to analyze
+                for potential misinformation
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -198,50 +204,51 @@ export default function AnalyzePage() {
                   </TabsContent>
                   <TabsContent value="file" className="mt-4">
                     <div className="grid gap-4">
-                      <Label htmlFor="file">Image File</Label>
-                      <div className="flex flex-col items-center gap-4">
-                        <Input
-                          id="file"
-                          type="file"
-                          accept="image/*"
-                          ref={fileInputRef}
-                          onChange={handleImageChange}
-                          required={inputType === "file"}
-                          className="py-2"
-                        />
-                        
-                        {previewUrl && (
-                          <div className="mt-4 relative">
-                            <img 
-                              src={previewUrl} 
-                              alt="Preview" 
-                              className="max-h-[300px] rounded-md border border-gray-200" 
-                            />
-                            <Button 
-                              type="button" 
-                              variant="outline" 
-                              size="sm" 
-                              className="absolute top-2 right-2 h-8 w-8 p-0"
-                              onClick={handleReset}
-                            >
-                              <CgClose className="h-4 w-4" />
-                            </Button>
-                          </div>
-                        )}
-                        
-                        {!previewUrl && (
-                          <div className="border-2 border-dashed border-gray-300 rounded-md p-8 text-center cursor-pointer hover:bg-gray-50 transition-colors"
-                               onClick={() => fileInputRef.current?.click()}>
-                            <Upload className="mx-auto h-12 w-12 text-gray-400" />
-                            <p className="mt-2 text-sm text-gray-600">
-                              Click to upload or drag and drop
-                            </p>
-                            <p className="text-xs text-gray-500">
-                              PNG, JPG, GIF up to 10MB
-                            </p>
-                          </div>
-                        )}
-                      </div>
+                      <Label htmlFor="file">Image Upload</Label>
+                      <Input
+                        id="file"
+                        type="file"
+                        accept="image/*"
+                        ref={fileInputRef}
+                        onChange={handleImageChange}
+                        required={inputType === "file"}
+                        className="py-2"
+                        hidden
+                      />
+
+                      {previewUrl && (
+                        <div className="mt-4 relative">
+                          <img
+                            src={previewUrl}
+                            alt="Preview"
+                            className="max-h-[300px] rounded-md border border-gray-200"
+                          />
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            className="absolute top-2 right-2 h-8 w-8 p-0"
+                            onClick={handleReset}
+                          >
+                            <CgClose className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      )}
+
+                      {!previewUrl && (
+                        <div
+                          className="w-full px-8 py-14 border-2 border-dashed border-gray-300 rounded-md text-center cursor-pointer hover:bg-gray-50 transition-colors"
+                          onClick={() => fileInputRef.current?.click()}
+                        >
+                          <Upload className="mx-auto h-12 w-12 text-gray-400" />
+                          <p className="mt-2 text-sm text-gray-600">
+                            Click to upload or drag and drop
+                          </p>
+                          <p className="text-xs text-gray-500">
+                            PNG, JPG, GIF up to 10MB
+                          </p>
+                        </div>
+                      )}
                     </div>
                   </TabsContent>
                 </Tabs>
@@ -249,7 +256,10 @@ export default function AnalyzePage() {
                 <Button
                   type="submit"
                   className="w-full py-6"
-                  disabled={isAnalyzing || (inputType === "text" ? !inputValue.trim() : !selectedImage)}
+                  disabled={
+                    isAnalyzing ||
+                    (inputType === "text" ? !inputValue.trim() : !selectedImage)
+                  }
                 >
                   {isAnalyzing ? "Analyzing..." : "Analyze Content"}
                 </Button>

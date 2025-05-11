@@ -19,6 +19,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { signIn, useSession } from "next-auth/react";
 
 // Mock feedback data
 const MOCK_FEEDBACKS = [
@@ -57,6 +58,8 @@ const MOCK_FEEDBACKS = [
 ];
 
 export default function FeedbackPage() {
+  const { status } = useSession();
+
   const [activeTab, setActiveTab] = useState("view");
   const [feedbacks, setFeedbacks] = useState(MOCK_FEEDBACKS);
   const [newFeedback, setNewFeedback] = useState({
@@ -200,83 +203,90 @@ export default function FeedbackPage() {
               <CardHeader>
                 <CardTitle>Share Your Experience</CardTitle>
                 <CardDescription>
-                  We value your feedback! Let us know how FakeNewsGuard has
+                  We value your feedback! Let us know how Fake News Detector has
                   helped you and how we can improve.
                 </CardDescription>
               </CardHeader>
-              <CardContent>
-                {submitSuccess ? (
-                  <div className="bg-green-50 border border-green-200 rounded-md p-4 text-green-800">
-                    Thank you for your feedback! Your input helps us improve
-                    FakeNewsGuard.
-                  </div>
-                ) : (
-                  <form onSubmit={handleSubmit} className="space-y-6">
-                    <div className="space-y-2">
-                      <Label htmlFor="name">Your Name</Label>
-                      <Input
-                        id="name"
-                        value={newFeedback.name}
-                        onChange={(e) =>
-                          setNewFeedback({
-                            ...newFeedback,
-                            name: e.target.value,
-                          })
-                        }
-                        placeholder="Enter your name"
-                        required
-                      />
+              {status !== "authenticated" ? (
+                <CardContent>
+                  <p>Please sign in to submit feedback.</p>
+                  <Button onClick={() => signIn()} className="max-w-[6rem] py-4 w-full mt-2">Sign In</Button>
+                </CardContent>
+              ) : (
+                <CardContent>
+                  {submitSuccess ? (
+                    <div className="bg-green-50 border border-green-200 rounded-md p-4 text-green-800">
+                      Thank you for your feedback! Your input helps us improve
+                      FakeNewsGuard.
                     </div>
-
-                    <div className="space-y-2">
-                      <Label>Your Rating</Label>
-                      <div className="flex gap-1">
-                        {[1, 2, 3, 4, 5].map((rating) => (
-                          <button
-                            key={rating}
-                            type="button"
-                            onClick={() => handleRatingChange(rating)}
-                            className="focus:outline-none"
-                          >
-                            <Star
-                              className={`h-8 w-8 ${
-                                rating <= newFeedback.rating
-                                  ? "fill-yellow-400 text-yellow-400"
-                                  : "text-gray-300"
-                              }`}
-                            />
-                          </button>
-                        ))}
+                  ) : (
+                    <form onSubmit={handleSubmit} className="space-y-6">
+                      <div className="space-y-2">
+                        <Label htmlFor="name">Your Name</Label>
+                        <Input
+                          id="name"
+                          value={newFeedback.name}
+                          onChange={(e) =>
+                            setNewFeedback({
+                              ...newFeedback,
+                              name: e.target.value,
+                            })
+                          }
+                          placeholder="Enter your name"
+                          required
+                        />
                       </div>
-                    </div>
 
-                    <div className="space-y-2">
-                      <Label htmlFor="comment">Your Feedback</Label>
-                      <Textarea
-                        id="comment"
-                        value={newFeedback.comment}
-                        onChange={(e) =>
-                          setNewFeedback({
-                            ...newFeedback,
-                            comment: e.target.value,
-                          })
-                        }
-                        placeholder="Share your experience with FakeNewsGuard..."
-                        className="min-h-[150px]"
-                        required
-                      />
-                    </div>
+                      <div className="space-y-2">
+                        <Label>Your Rating</Label>
+                        <div className="flex gap-1">
+                          {[1, 2, 3, 4, 5].map((rating) => (
+                            <button
+                              key={rating}
+                              type="button"
+                              onClick={() => handleRatingChange(rating)}
+                              className="focus:outline-none"
+                            >
+                              <Star
+                                className={`h-8 w-8 ${
+                                  rating <= newFeedback.rating
+                                    ? "fill-yellow-400 text-yellow-400"
+                                    : "text-gray-300"
+                                }`}
+                              />
+                            </button>
+                          ))}
+                        </div>
+                      </div>
 
-                    <Button
-                      type="submit"
-                      className="w-full py-6"
-                      disabled={isSubmitting}
-                    >
-                      {isSubmitting ? "Submitting..." : "Submit Feedback"}
-                    </Button>
-                  </form>
-                )}
-              </CardContent>
+                      <div className="space-y-2">
+                        <Label htmlFor="comment">Your Feedback</Label>
+                        <Textarea
+                          id="comment"
+                          value={newFeedback.comment}
+                          onChange={(e) =>
+                            setNewFeedback({
+                              ...newFeedback,
+                              comment: e.target.value,
+                            })
+                          }
+                          placeholder="Share your experience with FakeNewsGuard..."
+                          className="min-h-[150px]"
+                          required
+                        />
+                      </div>
+
+                      <Button
+                        type="submit"
+                        className="w-full py-6"
+                        disabled={isSubmitting}
+                      >
+                        {isSubmitting ? "Submitting..." : "Submit Feedback"}
+                      </Button>
+                    </form>
+                  )}
+                </CardContent>
+              )}
             </Card>
           </TabsContent>
         </Tabs>
