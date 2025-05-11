@@ -5,7 +5,12 @@ import { z } from "zod";
 
 export const GET = async () => {
   try {
-    const feedbacks = await prisma.feedback.findMany();
+    const feedbacks = await prisma.feedback.findMany({
+      include: { user: true },
+      orderBy: {
+        createdAt: "desc",
+      },
+    });
 
     return NextResponse.json({
       message: "successfully fetched feedbacks",
@@ -22,7 +27,7 @@ export const GET = async () => {
 
 const feedbackSchema = z.object({
   contentText: z.string().min(1),
-  rating: z.number().min(1).max(5).optional(),
+  rating: z.number().min(1).max(5),
 });
 
 export const POST = async (request: Request) => {
