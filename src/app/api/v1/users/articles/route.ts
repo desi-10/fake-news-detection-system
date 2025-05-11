@@ -68,8 +68,8 @@ export const POST = async (request: Request) => {
     let uploadedImage = null;
 
     if (content instanceof File) {
-      uploadedImage = await uploadFile("fake-news-detector", content);
       extractedText = await extractTextFromFile(content);
+      uploadedImage = await uploadFile("fake-news-detector", content);
     } else {
       extractedText = content;
     }
