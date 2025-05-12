@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { LogOut, User } from "lucide-react";
 import { CgSpinner } from "react-icons/cg";
+import Link from "next/link";
 
 interface UserData {
   name?: string | null;
@@ -27,7 +28,7 @@ export default function UserProfile() {
   useEffect(() => {
     // Mark that we're on the client
     setIsClient(true);
-    
+
     if (status === "authenticated" && session?.user) {
       setUserData({
         name: session.user.name,
@@ -76,7 +77,12 @@ export default function UserProfile() {
           <Avatar className="h-8 w-8 rounded-full ">
             {isClient && (
               <AvatarImage
-                src={userData.image || `${placeholderImage}&name=${encodeURIComponent(userData.name || 'User')}`}
+                src={
+                  userData.image ||
+                  `${placeholderImage}&name=${encodeURIComponent(
+                    userData.name || "User"
+                  )}`
+                }
                 alt={userData.name || "Profile picture"}
               />
             )}
@@ -90,6 +96,11 @@ export default function UserProfile() {
           <p className="text-sm font-medium">{userData.name}</p>
           <p className="text-xs text-muted-foreground">{userData.email}</p>
         </div>
+        <Link href="/account">
+          <DropdownMenuItem className="cursor-pointer">
+            <span>Account</span>
+          </DropdownMenuItem>
+        </Link>
         <DropdownMenuItem
           className="text-red-600 cursor-pointer"
           onClick={() => signOut()}

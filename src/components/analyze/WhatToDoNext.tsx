@@ -1,5 +1,5 @@
 import React from "react";
-import { Card, CardAction, CardContent, CardHeader, CardTitle } from "../ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 
 const WhatToDoNext = () => {
   return (
@@ -47,7 +47,6 @@ const WhatToDoNext = () => {
           </div>
         </div>
       </CardContent>
-      <CardAction>jhgfhjkl</CardAction>
     </Card>
   );
 };

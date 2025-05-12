@@ -136,7 +136,7 @@ export default function FeedbackPage() {
 
   return (
     <div className="flex min-h-screen flex-col">
-      <main className="flex-1 max-w-5xl mx-auto py-12">
+      <main className="flex-1 max-w-5xl w-full mx-auto py-12">
         <Link href="/" className="inline-flex items-center mb-6 text-sm">
           <ArrowLeft className="mr-2 h-4 w-4" />
           Back to Home

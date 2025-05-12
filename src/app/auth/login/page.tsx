@@ -1,9 +1,14 @@
 "use client";
 
-import { signIn } from "next-auth/react";
+import { signIn, useSession } from "next-auth/react";
+import { redirect } from "next/navigation";
 import { CgGoogle } from "react-icons/cg";
 
 export default function LoginPage() {
+  const { status } = useSession();
+
+  if (status === "authenticated") redirect("/")
+
   const handleGoogleSignIn = async () => {
     try {
       await signIn("google", { redirectTo: "/" });
