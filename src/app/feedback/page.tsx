@@ -19,6 +19,7 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { signIn, useSession } from "next-auth/react";
+import Loader from "@/components/Loader";
 
 export default function FeedbackPage() {
   const { status } = useSession();
@@ -51,21 +52,27 @@ export default function FeedbackPage() {
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(false);
 
   useEffect(() => {
     const fetchFeedbacks = async () => {
       try {
+        setIsLoading(true);
         const response = await fetch("/api/v1/users/feedbacks");
         const data = await response.json();
         setFeedbacks(data.data);
+        setIsLoading(true);
+        setActiveTab("view");
       } catch (error) {
         console.error("Error fetching feedbacks:", error);
+      } finally {
+        setIsLoading(false);
       }
     };
 
     fetchFeedbacks();
-  }, []);
+  }, [submitSuccess]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -76,7 +83,16 @@ export default function FeedbackPage() {
       body: JSON.stringify(newFeedback),
     });
 
-    console.log("response", response);
+    if (response.ok) {
+      setSubmitSuccess(true);
+      setNewFeedback({ rating: 0, content: "" });
+    } else {
+      console.error("Error submitting feedback:", response.statusText);
+      setSubmitSuccess(false);
+      alert("Error submitting feedback. Try again!");
+    }
+
+    setIsSubmitting(false);
   };
 
   const handleRatingChange = (rating: number) => {
@@ -202,7 +218,7 @@ export default function FeedbackPage() {
                   {submitSuccess ? (
                     <div className="bg-green-50 border border-green-200 rounded-md p-4 text-green-800">
                       Thank you for your feedback! Your input helps us improve
-                      FakeNewsGuard.
+                      Fake News Detector.
                     </div>
                   ) : (
                     <form onSubmit={handleSubmit} className="space-y-6">
@@ -260,6 +276,7 @@ export default function FeedbackPage() {
           </TabsContent>
         </Tabs>
       </main>
+      {isLoading && <Loader loadingText="Loading feedbacks..." />}
     </div>
   );
 }
