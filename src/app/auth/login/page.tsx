@@ -4,6 +4,7 @@ import { signIn } from "next-auth/react";
 import { CgGoogle } from "react-icons/cg";
 
 export default function LoginPage() {
+
   const handleGoogleSignIn = async () => {
     try {
       await signIn("google", { redirectTo: "/" });

@@ -2,7 +2,7 @@
 
 import type React from "react";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { ArrowLeft, Star, StarHalf } from "lucide-react";
 
@@ -15,7 +15,6 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -63,40 +62,38 @@ export default function FeedbackPage() {
   const [activeTab, setActiveTab] = useState("view");
   const [feedbacks, setFeedbacks] = useState(MOCK_FEEDBACKS);
   const [newFeedback, setNewFeedback] = useState({
-    name: "",
     rating: 5,
-    comment: "",
+    content: "",
   });
+
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  useEffect(() => {
+    const fetchFeedbacks = async () => {
+      try {
+        const response = await fetch("/api/v1/users/feedbacks");
+        const data = await response.json();
+        console.log("___  ",data)
+        setFeedbacks(data || []);
+      } catch (error) {
+        console.error("Error fetching feedbacks:", error);
+      }
+    };
+
+    fetchFeedbacks();
+  }, []);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
 
-    // Simulate API call
-    setTimeout(() => {
-      const newFeedbackWithId = {
-        ...newFeedback,
-        id: feedbacks.length + 1,
-        date: new Date().toISOString().split("T")[0],
-      };
+    const response = await fetch("/api/v1/users/feedbacks", {
+      method: "POST",
+      body: JSON.stringify(newFeedback),
+    });
 
-      setFeedbacks([newFeedbackWithId, ...feedbacks]);
-      setNewFeedback({
-        name: "",
-        rating: 5,
-        comment: "",
-      });
-      setIsSubmitting(false);
-      setSubmitSuccess(true);
-
-      // Reset success message after 3 seconds
-      setTimeout(() => {
-        setSubmitSuccess(false);
-        setActiveTab("view");
-      }, 3000);
-    }, 1000);
+    console.log("response", response);
   };
 
   const handleRatingChange = (rating: number) => {
@@ -136,7 +133,7 @@ export default function FeedbackPage() {
 
   return (
     <div className="flex min-h-screen flex-col">
-      <main className="flex-1 max-w-5xl mx-auto py-12">
+      <main className="flex-1 max-w-5xl w-full mx-auto py-12">
         <Link href="/" className="inline-flex items-center mb-6 text-sm">
           <ArrowLeft className="mr-2 h-4 w-4" />
           Back to Home
@@ -160,7 +157,7 @@ export default function FeedbackPage() {
               helping them identify misinformation.`}
             </p>
 
-            {feedbacks.map((feedback) => (
+            {feedbacks?.length > 0 && feedbacks.map((feedback) => (
               <Card key={feedback.id} className="mb-4">
                 <CardHeader className="pb-2">
                   <div className="flex justify-between items-start">
@@ -227,22 +224,6 @@ export default function FeedbackPage() {
                   ) : (
                     <form onSubmit={handleSubmit} className="space-y-6">
                       <div className="space-y-2">
-                        <Label htmlFor="name">Your Name</Label>
-                        <Input
-                          id="name"
-                          value={newFeedback.name}
-                          onChange={(e) =>
-                            setNewFeedback({
-                              ...newFeedback,
-                              name: e.target.value,
-                            })
-                          }
-                          placeholder="Enter your name"
-                          required
-                        />
-                      </div>
-
-                      <div className="space-y-2">
                         <Label>Your Rating</Label>
                         <div className="flex gap-1">
                           {[1, 2, 3, 4, 5].map((rating) => (
@@ -268,11 +249,11 @@ export default function FeedbackPage() {
                         <Label htmlFor="comment">Your Feedback</Label>
                         <Textarea
                           id="comment"
-                          value={newFeedback.comment}
+                          value={newFeedback.content}
                           onChange={(e) =>
                             setNewFeedback({
                               ...newFeedback,
-                              comment: e.target.value,
+                              content: e.target.value,
                             })
                           }
                           placeholder="Share your experience with FakeNewsGuard..."
