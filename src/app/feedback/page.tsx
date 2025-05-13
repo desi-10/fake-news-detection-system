@@ -156,8 +156,8 @@ export default function FeedbackPage() {
 
           <TabsContent value="view" className="space-y-6">
             <p className="text-muted-foreground mb-6">
-              See what others are saying about FakeNewsGuard and how it's
-              helping them identify misinformation.
+              {` See what others are saying about FakeNewsGuard and how it's
+              helping them identify misinformation.`}
             </p>
 
             {feedbacks.map((feedback) => (
@@ -210,7 +210,12 @@ export default function FeedbackPage() {
               {status !== "authenticated" ? (
                 <CardContent>
                   <p>Please sign in to submit feedback.</p>
-                  <Button onClick={() => signIn()} className="max-w-[6rem] py-4 w-full mt-2">Sign In</Button>
+                  <Button
+                    onClick={() => signIn()}
+                    className="max-w-[6rem] py-4 w-full mt-2"
+                  >
+                    Sign In
+                  </Button>
                 </CardContent>
               ) : (
                 <CardContent>

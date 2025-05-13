@@ -14,6 +14,10 @@ export default middleware((req) => {
     return NextResponse.redirect(new URL("/", req.url));
   }
 
+  if (nextUrl.pathname.startsWith("/auth/login") && req.auth?.user) {
+    return NextResponse.redirect(new URL("/", req.url));
+  }
+
   return NextResponse.next();
 });
 

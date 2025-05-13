@@ -16,6 +16,7 @@ const Result = ({
   setResults,
 }: {
   results: ResultProps;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   setResults: (param: any) => void;
 }) => {
   return (
