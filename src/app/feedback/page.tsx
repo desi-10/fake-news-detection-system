@@ -19,70 +19,60 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { signIn, useSession } from "next-auth/react";
-
-// Mock feedback data
-const MOCK_FEEDBACKS = [
-  {
-    id: 1,
-    name: "Sarah Johnson",
-    rating: 5,
-    comment:
-      "This tool helped me identify a misleading article that was being shared in my social circle. The detailed analysis made it easy to explain to others why the content wasn't reliable.",
-    date: "2025-04-28",
-  },
-  {
-    id: 2,
-    name: "Michael Chen",
-    rating: 4,
-    comment:
-      "Very useful for fact-checking news articles. I would love to see more detailed source analysis in future updates.",
-    date: "2025-04-25",
-  },
-  {
-    id: 3,
-    name: "Priya Patel",
-    rating: 5,
-    comment:
-      "As a teacher, I've been using this with my students to help them develop critical thinking skills when consuming online content. It's been an invaluable resource!",
-    date: "2025-04-20",
-  },
-  {
-    id: 4,
-    name: "James Wilson",
-    rating: 3,
-    comment:
-      "Good concept, but sometimes the analysis seems too simplistic. Would be better with more nuanced ratings beyond just 'likely true' or 'likely false'.",
-    date: "2025-04-15",
-  },
-];
+import Loader from "@/components/Loader";
 
 export default function FeedbackPage() {
   const { status } = useSession();
 
   const [activeTab, setActiveTab] = useState("view");
-  const [feedbacks, setFeedbacks] = useState(MOCK_FEEDBACKS);
+  const [feedbacks, setFeedbacks] = useState<
+    {
+      id: string;
+      content: string;
+      rating: number;
+      userId: string;
+      createdAt: string;
+      updatedAt: string;
+      user: {
+        id: string;
+        name: string;
+        email: string;
+        emailVerified: boolean | null;
+        image: string;
+        role: string;
+        isAtive: boolean;
+        createdAt: string;
+        updatedAt: string;
+      };
+    }[]
+  >([]);
   const [newFeedback, setNewFeedback] = useState({
     rating: 5,
     content: "",
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(false);
 
   useEffect(() => {
     const fetchFeedbacks = async () => {
       try {
+        setIsLoading(true);
         const response = await fetch("/api/v1/users/feedbacks");
         const data = await response.json();
-        console.log("___  ",data)
-        setFeedbacks(data || []);
+        setFeedbacks(data.data);
+        setIsLoading(true);
+        setActiveTab("view");
       } catch (error) {
         console.error("Error fetching feedbacks:", error);
+      } finally {
+        setIsLoading(false);
       }
     };
 
     fetchFeedbacks();
-  }, []);
+  }, [submitSuccess]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -93,7 +83,16 @@ export default function FeedbackPage() {
       body: JSON.stringify(newFeedback),
     });
 
-    console.log("response", response);
+    if (response.ok) {
+      setSubmitSuccess(true);
+      setNewFeedback({ rating: 0, content: "" });
+    } else {
+      console.error("Error submitting feedback:", response.statusText);
+      setSubmitSuccess(false);
+      alert("Error submitting feedback. Try again!");
+    }
+
+    setIsSubmitting(false);
   };
 
   const handleRatingChange = (rating: number) => {
@@ -157,14 +156,14 @@ export default function FeedbackPage() {
               helping them identify misinformation.`}
             </p>
 
-            {feedbacks?.length > 0 && feedbacks.map((feedback) => (
+            {feedbacks?.map((feedback) => (
               <Card key={feedback.id} className="mb-4">
                 <CardHeader className="pb-2">
                   <div className="flex justify-between items-start">
                     <div className="flex items-center gap-3">
                       <Avatar>
                         <AvatarFallback>
-                          {feedback.name
+                          {feedback.user.name
                             .split(" ")
                             .map((n) => n[0])
                             .join("")}
@@ -172,7 +171,7 @@ export default function FeedbackPage() {
                       </Avatar>
                       <div>
                         <CardTitle className="text-lg">
-                          {feedback.name}
+                          {feedback.user.name}
                         </CardTitle>
                         <div className="flex mt-1">
                           {renderStars(feedback.rating)}
@@ -180,7 +179,7 @@ export default function FeedbackPage() {
                       </div>
                     </div>
                     <div className="text-sm text-muted-foreground">
-                      {new Date(feedback.date).toLocaleDateString("en-US", {
+                      {new Date(feedback.createdAt).toLocaleDateString("en-US", {
                         year: "numeric",
                         month: "long",
                         day: "numeric",
@@ -189,7 +188,7 @@ export default function FeedbackPage() {
                   </div>
                 </CardHeader>
                 <CardContent>
-                  <p>{feedback.comment}</p>
+                  <p>{feedback.content}</p>
                 </CardContent>
               </Card>
             ))}
@@ -219,7 +218,7 @@ export default function FeedbackPage() {
                   {submitSuccess ? (
                     <div className="bg-green-50 border border-green-200 rounded-md p-4 text-green-800">
                       Thank you for your feedback! Your input helps us improve
-                      FakeNewsGuard.
+                      Fake News Detector.
                     </div>
                   ) : (
                     <form onSubmit={handleSubmit} className="space-y-6">
@@ -277,6 +276,7 @@ export default function FeedbackPage() {
           </TabsContent>
         </Tabs>
       </main>
+      {isLoading && <Loader loadingText="Loading feedbacks..." />}
     </div>
   );
 }

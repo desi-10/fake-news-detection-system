@@ -17,7 +17,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Footer from "@/components/Footer";
-import Loader from "@/components/analyze/Loader";
+import Loader from "@/components/Loader";
 import ErrorAlert from "@/components/analyze/ErrorAlert";
 import Result from "@/components/analyze/Result";
 import { CgClose } from "react-icons/cg";

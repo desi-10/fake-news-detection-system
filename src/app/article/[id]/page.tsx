@@ -25,7 +25,7 @@ export default function ArticlePage() {
   const [article, setArticle] = useState<Article | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [parsedResults, setParsedResults] = useState<any>(null);
+  const [parsedResults, setParsedResults] = useState(null);
 
   // Redirect if not authenticated
   if (status === "unauthenticated") {

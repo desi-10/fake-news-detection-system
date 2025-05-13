@@ -26,7 +26,7 @@ interface Article {
 }
 
 const Account = () => {
-  const { data: session, status } = useSession();
+  const {  status } = useSession();
   const [articles, setArticles] = useState<Article[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -120,7 +120,7 @@ const Account = () => {
           ) : articles.length === 0 ? (
             <Card>
               <CardContent className="py-12 text-center">
-                <p className="text-muted-foreground mb-4">You haven't analyzed any articles yet.</p>
+                <p className="text-muted-foreground mb-4">{"You haven't analyzed any articles yet."}</p>
                 <Link href="/analyze">
                   <Button>Analyze Your First Article</Button>
                 </Link>
