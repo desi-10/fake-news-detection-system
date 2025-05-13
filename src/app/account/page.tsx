@@ -13,7 +13,6 @@ import {
   CardFooter,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { CgSpinner } from "react-icons/cg";
 
 // Define the article type based on your API response
