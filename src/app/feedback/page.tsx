@@ -75,7 +75,7 @@ export default function FeedbackPage() {
         const response = await fetch("/api/v1/users/feedbacks");
         const data = await response.json();
         console.log("___  ",data)
-        // setFeedbacks(data);
+        setFeedbacks(data || []);
       } catch (error) {
         console.error("Error fetching feedbacks:", error);
       }
@@ -157,7 +157,7 @@ export default function FeedbackPage() {
               helping them identify misinformation.`}
             </p>
 
-            {feedbacks.map((feedback) => (
+            {feedbacks?.length > 0 && feedbacks.map((feedback) => (
               <Card key={feedback.id} className="mb-4">
                 <CardHeader className="pb-2">
                   <div className="flex justify-between items-start">
