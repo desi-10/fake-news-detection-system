@@ -10,6 +10,9 @@ import {
 import { Button } from "../ui/button";
 import WhatToDoNext from "./WhatToDoNext";
 import { ResultProps } from "@/app/analyze/page";
+import jsPDF from "jspdf";
+import "jspdf-autotable"; 
+
 
 const Result = ({
   results,
@@ -17,8 +20,76 @@ const Result = ({
 }: {
   results: ResultProps;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  setResults: (param: any) => void;
+  setResults: (param: ResultProps | null) => void;
 }) => {
+
+  const handleDownload = () => {
+    const pdf = new jsPDF();
+
+    // Title
+    pdf.setFont("helvetica", "bold");
+    pdf.setFontSize(20);
+    pdf.setTextColor(40, 40, 40);
+    pdf.text("Analysis Report", 105, 20, { align: "center" });
+
+    // Reliability Section
+    pdf.setFontSize(14);
+    pdf.setTextColor(0, 0, 0);
+    pdf.text("Reliability Assessment", 10, 40);
+
+    // Badge-style result
+    pdf.setFontSize(16);
+    if (results.isLikelyTrue) {
+      pdf.setTextColor(34, 197, 94); // green
+      pdf.text("Likely True", 10, 50);
+    } else {
+      pdf.setTextColor(239, 68, 68); // red
+      pdf.text("Likely False", 10, 50);
+    }
+    pdf.setFontSize(12);
+    pdf.setTextColor(0, 0, 0);
+    pdf.text(`Confidence: ${Math.round(results.confidence * 100)}%`, 10, 60);
+
+    // Summary
+    pdf.setFontSize(14);
+    pdf.text("Summary", 10, 80);
+    pdf.setFontSize(12);
+    pdf.setFont("helvetica", "normal");
+    pdf.text(results.summary, 10, 90, { maxWidth: 180 });
+
+    // Explanation
+    pdf.setFont("helvetica", "bold");
+    pdf.setFontSize(14);
+    pdf.text("Detailed Explanation", 10, 120);
+    pdf.setFontSize(12);
+    pdf.setFont("helvetica", "normal");
+    pdf.text(results.explanation, 10, 130, { maxWidth: 180 });
+
+    // Sources Table (with jspdf-autotable)
+    if (results.sources?.length) {
+      pdf.setFontSize(14);
+      pdf.text("Source Verification", 10, 160);
+
+      const tableData = results.sources.map((s, i) => [
+        i + 1,
+        s.publisher,
+        s.rating,
+        s.url,
+      ]);
+
+      (pdf as any).autoTable({
+        startY: 170,
+        head: [["#", "Publisher", "Rating", "URL"]],
+        body: tableData,
+        styles: { fontSize: 10, cellWidth: "wrap" },
+        headStyles: { fillColor: [59, 130, 246] }, // Tailwind blue-500
+      });
+    }
+
+    // Save
+    pdf.save("analysis-report.pdf");
+  };
+
   return (
     <div className="max-w-2xl mx-auto space-y-6">
       <Card>
@@ -107,7 +178,7 @@ const Result = ({
           <Button variant="outline" onClick={() => setResults(null)}>
             Analyze Another
           </Button>
-          <Button>Download Report</Button>
+          <Button onClick={handleDownload}>Download Report</Button>
         </CardFooter>
       </Card>
 
