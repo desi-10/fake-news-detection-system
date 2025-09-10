@@ -20,7 +20,7 @@ const Result = ({
 }: {
   results: ResultProps;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  setResults: (param: any) => void;
+  setResults: (param: ResultProps | null) => void;
 }) => {
 
   const handleDownload = () => {
