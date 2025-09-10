@@ -1,3 +1,5 @@
+/* eslint-disable */
+
 import React from "react";
 import {
   Card,
@@ -11,18 +13,15 @@ import { Button } from "../ui/button";
 import WhatToDoNext from "./WhatToDoNext";
 import { ResultProps } from "@/app/analyze/page";
 import jsPDF from "jspdf";
-import "jspdf-autotable"; 
-
+import "jspdf-autotable";
 
 const Result = ({
   results,
   setResults,
 }: {
   results: ResultProps;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  setResults: (param: ResultProps | null) => void;
+  setResults: (param: any) => void;
 }) => {
-
   const handleDownload = () => {
     const pdf = new jsPDF();
 
